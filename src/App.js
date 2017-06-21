@@ -258,7 +258,7 @@ class App extends Component {
     var svgURL = URL.createObjectURL(svgBlob)
     link.href = svgURL 
 
-    link.setAttribute('download', `circleofra.svg`)
+    link.setAttribute('download', `chords.svg`)
     link.click()
   }
 
