@@ -21,11 +21,12 @@ class App extends Component {
       brightness: brightness,
       hue: hue,
       lines: 8,
-      padding: 120,
+      padding: 60,
       radiusScale: 0.9,
       width: 500,
       height: 500,
-      paper: 0
+      paper: 0,
+      running: false
     }
   }
 
@@ -96,6 +97,10 @@ class App extends Component {
   decreaseHue(amt) {
     amt = amt || 1
     this.setState({hue:  (this.state.hue - amt) < 0 ? 360 : this.state.hue - amt})
+  }
+
+  toggleRun() {
+    this.setState({running: !this.state.running})
   }
 
   generateStripes () {
@@ -175,6 +180,13 @@ class App extends Component {
     this.updateDimensions()
   }
 
+  tick () {
+    if (this.state.running) {
+      this.increaseHue(10)
+      Math.random() > 0.5 ? this.addLine() : this.removeLine()
+    }
+  }
+
   updateDimensions () {
     const w = window,
         d = document,
@@ -188,7 +200,7 @@ class App extends Component {
     const settings = { width: dim , height: dim }
 
     if (settings.width >= 500) {
-      settings.padding = 120
+      settings.padding = 60
     } else {
       settings.padding = 0
     }
@@ -199,11 +211,14 @@ class App extends Component {
   componentWillUnmount () {
     window.removeEventListener("resize", this.updateDimensions.bind(this), true)
     window.removeEventListener('keydown', this.handleKeydown.bind(this), true)
+    window.clearInterval(this.interval)
   }
 
   componentDidMount () {
     window.addEventListener("resize", this.updateDimensions.bind(this), true)
     window.addEventListener('keydown', this.handleKeydown.bind(this), true)
+
+    this.interval = window.setInterval(this.tick.bind(this), 400)
 
     const mc = new Hammer(document, { preventDefault: true })
 
@@ -231,6 +246,9 @@ class App extends Component {
     } else if (ev.which === 80 && !(ev.metaKey || ev.ctrlKey)) {
       ev.preventDefault()
       this.togglePaper()
+    } else if (ev.which === 84) {
+      ev.preventDefault()
+      this.toggleRun()
     } else if (ev.which === 40) {
       ev.preventDefault()
       this.removeLine()
